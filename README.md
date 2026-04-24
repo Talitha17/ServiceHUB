@@ -1,5 +1,6 @@
 # ServiceHUB
 aplikasi perbaikan kerusakan 
-<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/eb50ec1a-72b4-4c09-8316-7fd5448cac39" />
-<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/6756144d-b069-4d29-91ae-b047870937ad" />
-<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/1358a58d-a256-4013-ada9-b30125186781" />
+<img width="1920" height="797" alt="Screenshot (235)" src="https://github.com/user-attachments/assets/539cc0cc-fdd7-403a-8c46-66d7074ebf4d" />
+<img width="1920" height="804" alt="Screenshot (236)" src="https://github.com/user-attachments/assets/eb323de6-fe12-497d-a935-3ca4999f9480" />
+<img width="1920" height="800" alt="Screenshot (237)" src="https://github.com/user-attachments/assets/daa9f9f8-89dd-4fa0-9f62-410a0ec870d5" />
+
