@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <base target="_top">
+  
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Projects Dashboard</title>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      background: #f5f6fa;
+      padding: 30px;
+    }
+
+    .projects-container {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+      overflow: hidden;
+    }
+
+    .projects-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px;
+      border-bottom: 1px solid #eee;
+      flex-wrap: wrap;
+      gap: 15px;
+    }
+
+    .header-title {
+      font-size: 20px;
+      font-weight: bold;
+      color: #333;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .header-icon {
+      color: #777;
+    }
+
+    .search-container {
+      display: flex;
+      align-items: center;
+    }
+
+    .search-box {
+      display: flex;
+      align-items: center;
+      background: #f3f4f6;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      padding: 8px 12px;
+      min-width: 260px;
+    }
+
+    .search-box i {
+      color: #6b7280;
+      margin-right: 8px;
+    }
+
+    .search-box input {
+      border: none;
+      outline: none;
+      background: transparent;
+      width: 100%;
+      font-size: 14px;
+      color: #374151;
+    }
+
+    .search-box input::placeholder {
+      color: #9ca3af;
+    }
+
+    .table-wrapper {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 800px;
+    }
+
+    thead {
+      background: #f9fafb;
+    }
+
+    th, td {
+      padding: 14px 16px;
+      border-bottom: 1px solid #eee;
+      text-align: left;
+      font-size: 14px;
+    }
+
+    th {
+      font-weight: 600;
+      color: #374151;
+    }
+
+    td {
+      color: #4b5563;
+    }
+
+    tr:hover {
+      background: #f9fafb;
+    }
+
+    .badge {
+      padding: 6px 10px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: bold;
+      color: white;
+      display: inline-block;
+    }
+
+    .badge-warning {
+      background: #f59e0b;
+    }
+
+    .badge-success {
+      background: #10b981;
+    }
+
+    .badge-danger {
+      background: #ef4444;
+    }
+
+    .loading-text {
+      text-align: center;
+      padding: 40px;
+      color: #6b7280;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="projects-container">
+    <div class="projects-header">
+      <div class="header-title">
+        <span class="header-icon">⋮</span>
+        Data Laporan
+      </div>
+
+      <div class="search-container">
+        <div class="search-box">
+          <i class="fas fa-search"></i>
+          <input 
+            type="text" 
+            id="searchInput" 
+            placeholder="Cari ID Laporan..." 
+            onkeyup="filterTabel()"
+          >
+        </div>
+      </div>
+    </div>
+
+    <div class="table-wrapper">
+      <table>
+        <thead id="headTabelSederhana"></thead>
+        <tbody id="bodyTabelSederhana">
+          <tr>
+            <td colspan="10" class="loading-text">
+              <i class="fas fa-spinner fa-spin"></i> Memuat data...
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    function initHalaman() {
+      muatUlangTabel();
+    }
+
+    function muatUlangTabel() {
+      document.getElementById("headTabelSederhana").innerHTML = "";
+
+      document.getElementById("bodyTabelSederhana").innerHTML = `
+        <tr>
+          <td colspan="10" class="loading-text">
+            <i class="fas fa-spinner fa-spin"></i> Memuat data laporan...
+          </td>
+        </tr>
+      `;
+
+      if (typeof google !== 'undefined' && google.script) {
+        google.script.run
+  .withSuccessHandler(renderTabelDinamisMurni)
+  .withFailureHandler(function(err){
+    console.log(err);
+    document.getElementById("bodyTabelSederhana").innerHTML = `
+      <tr>
+        <td colspan="10" class="loading-text">
+          Gagal memuat data: ${err.message}
+        </td>
+      </tr>
+    `;
+  })
+  .getDataLaporan();
+      }
+    }
+
+    function renderTabelDinamisMurni(dataMentah2D) {
+      if (!dataMentah2D || dataMentah2D.length < 2) {
+        document.getElementById("bodyTabelSederhana").innerHTML = `
+          <tr>
+            <td colspan="15" class="loading-text">
+              Tidak ditemukan data.
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+     let headerHTML = "<tr>";
+      dataMentah2D[0].forEach(judul => {
+        headerHTML += `<th>${judul}</th>`;
+      });
+
+      document.getElementById("headTabelSederhana").innerHTML = headerHTML;
+
+      let bodyHTML = "";
+
+      for (let b = 1; b < dataMentah2D.length; b++) {
+        if (dataMentah2D[b].join("") === "") continue;
+
+        bodyHTML += `<tr>`;
+
+        dataMentah2D[b].forEach((isiCell) => {
+          let htmlSel = isiCell;
+          let cekKata = String(isiCell).toLowerCase().trim();
+
+          // KOREKSI: Gunakan huruf kecil semua untuk pencocokan
+          if (cekKata === 'diproses' || cekKata === 'menunggu') {
+            htmlSel = `<span class="badge badge-warning">${isiCell}</span>`;
+          } else if (cekKata === 'selesai' || cekKata === 'terverifikasi') {
+            htmlSel = `<span class="badge badge-success">${isiCell}</span>`;
+          } else if (cekKata === 'ditolak') { 
+            // Catatan: 'terverifikasi' jangan dicek 2x agar tidak bentrok
+            htmlSel = `<span class="badge badge-danger">${isiCell}</span>`;
+          }
+          
+          bodyHTML += `<td>${htmlSel}</td>`;
+        });
+      }
+
+      document.getElementById("bodyTabelSederhana").innerHTML = bodyHTML;
+    }
+
+    function filterTabel() {
+      const input = document.getElementById("searchInput");
+      const filter = input.value.toLowerCase();
+      const rows = document.getElementById("bodyTabelSederhana").getElementsByTagName("tr");
+
+      for (let i = 0; i < rows.length; i++) {
+        const firstCell = rows[i].getElementsByTagName("td")[0];
+
+        if (firstCell) {
+          const txtValue = firstCell.textContent || firstCell.innerText;
+
+          if (txtValue.toLowerCase().indexOf(filter) > -1) {
+            rows[i].style.display = "";
+          } else {
+            rows[i].style.display = "none";
+          }
+        }
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", initHalaman);
+  </script>
+
+</body>
+</html>
